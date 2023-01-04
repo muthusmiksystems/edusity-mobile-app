@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import LoaderKit from 'react-native-loader-kit'
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MCI from 'react-native-vector-icons/MaterialCommunityIcons';
 import { icons, images, COLORS, FONTS, SIZES } from '../../constants';
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch } from 'react-redux';
@@ -64,15 +65,15 @@ const Form = () => {
                         setLoader(false);
                         console.log(originalPromiseResult.errorCode, "hello")
                         if (originalPromiseResult.errorCode == "") {
-                            var emailforOtp=data.email;
+                            var emailforOtp = data.email;
                             let url = "https://backend-linux-login.azurewebsites.net/send-otp"
                             await axios.post(url, { "email": data.email }).then(response => (
                                 console.log("Forgot api", response.data),
-                        
-                                navigation.navigate("OtpPage",{emailforOtp})
+
+                                navigation.navigate("OtpPage", { emailforOtp })
                             )).catch(err =>
                                 console.log("error", err))
-                        }else{
+                        } else {
                             Toast.show(originalPromiseResult.message, Toast.LONG);
                         }
                     } else {
@@ -92,29 +93,37 @@ const Form = () => {
         }
     }, [data]);
 
-  
+
 
 
 
     return (
         <View style={{ width: "100%", alignItems: "center" }}>
-            loader?<> <LoaderKit
-                                style={{ height: 25 }}
-                                name={'Pacman'} // Optional: see list of animations below
-                                size={10} // Required on iOS
-                                color={COLORS.primary} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',
-                            />
-</>:
-            <View style={{ width: "85%", marginTop: "2%" }}>
+          {  loader ?
+            <> 
+            <LoaderKit
+                style={{ height: 25 }}
+                name={'Pacman'} // Optional: see list of animations below
+                size={10} // Required on iOS
+                color={COLORS.primary} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',
+            />
+            </>:
+            <>
+           <View style={{ width: "85%", marginTop: "2%" }}>
                 <InputBox
                     inputOutline
                     label={'First Name'}
                     value={firstName}
                     customLabelStyle={{ ...FONTS.robotoregular }}
                     name={"FirstName"}
+                    leftIcon={<MCI name={'format-letter-case-lower'} size={18} style={{color:COLORS.primary}} />}
                     onChangeText={e => { handleChange(e, "firstName"), setFirstName(e) }}
                 />
-                {formErrors && formErrors.firstName ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.firstName}</Text></View> : null}
+                {formErrors && formErrors.firstName ?
+                    <View style={{ ...styles.ErrorCont }}>
+                        <Text style={{ ...styles.ErrorText }}>{formErrors.firstName}
+                        </Text>
+                    </View> : null}
             </View>
             <View style={{ width: "85%", marginTop: "2%" }}>
                 <InputBox
@@ -123,9 +132,13 @@ const Form = () => {
                     customLabelStyle={{ ...FONTS.robotoregular }}
                     value={lastName}
                     name={"LastName"}
+                    leftIcon={<MCI name={'format-letter-case-lower'} size={18} style={{color:COLORS.primary}} />}
                     onChangeText={e => { handleChange(e, "lastName"), setLastName(e) }}
                 />
-                {formErrors && formErrors.lastName ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.lastName}</Text></View> : null}
+                {formErrors && formErrors.lastName ?
+                    <View style={{ ...styles.ErrorCont }}>
+                        <Text style={{ ...styles.ErrorText }}>{formErrors.lastName}</Text>
+                    </View> : null}
             </View>
 
 
@@ -137,10 +150,13 @@ const Form = () => {
                     value={email}
                     name={"Email"}
                     customLabelStyle={{ ...FONTS.robotoregular }}
-
+                    leftIcon={<MCI name={'email'} size={18} style={{color:COLORS.primary}} />}
                     onChangeText={e => { handleChange(e, "email"), setEmail(e) }}
                 />
-                {formErrors && formErrors.email ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.email}</Text></View> : null}
+                {formErrors && formErrors.email ?
+                    <View style={{ ...styles.ErrorCont }}>
+                        <Text style={{ ...styles.ErrorText }}>{formErrors.email}</Text>
+                    </View> : null}
             </View>
 
 
@@ -152,9 +168,9 @@ const Form = () => {
                     value={password}
                     name={"Password"}
                     customLabelStyle={{ ...FONTS.robotoregular }}
-                    required
-                    rightIcon={<FontAwesome5 name={'eye'} size={18} />}
-                    passHideIcon={<FontAwesome5 name={'eye-slash'} size={18} />}
+                    // leftIcon={<MCI name={'form-textbox-password'} size={18} style={{color:COLORS.primary}} />}
+                    rightIcon={<FontAwesome5 name={'eye'} size={18} style={{color:COLORS.primary}} />}
+                    passHideIcon={<FontAwesome5 name={'eye-slash'} size={18} style={{color:COLORS.primary}} />}
                     secureTextEntry={true}
                     // rightIcon={<Image
                     //     source={icons.Edusitylogo}
@@ -167,7 +183,10 @@ const Form = () => {
                     // passHideIcon={<FontAwesome  name={'eye-slash'} size={5}/>}
                     onChangeText={e => { handleChange(e, "password"), setPassword(e) }}
                 />
-                {formErrors && formErrors.password ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.password}</Text></View> : null}
+                {formErrors && formErrors.password ?
+                    <View style={{ ...styles.ErrorCont }}>
+                        <Text style={{ ...styles.ErrorText }}>{formErrors.password}</Text>
+                    </View> : null}
             </View>
             <View style={{ width: "85%", marginTop: "2%" }}>
                 <InputBox
@@ -175,13 +194,16 @@ const Form = () => {
                     label={' Confirm Password'}
                     value={confirmPassword}
                     secureTextEntry={true}
-                    required
-                    rightIcon={<FontAwesome5 name={'eye'} size={18} />}
-                    passHideIcon={<FontAwesome5 name={'eye-slash'} size={18} />}
+                    // leftIcon={<MCI name={'form-textbox-password'} size={18} style={{color:COLORS.primary}} />}
+                    rightIcon={<FontAwesome5 name={'eye'} size={18} style={{color:COLORS.primary}} />}
+                    passHideIcon={<FontAwesome5 name={'eye-slash'} size={18} style={{color:COLORS.primary}} />}
                     customLabelStyle={{ ...FONTS.robotoregular }}
                     onChangeText={e => { handleChange(e, "password2"), setConfirmPassword(e) }}
                 />
-                {formErrors && formErrors.password2 ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.password2}</Text></View> : null}
+                {formErrors && formErrors.password2 ?
+                    <View style={{ ...styles.ErrorCont }}>
+                        <Text style={{ ...styles.ErrorText }}>{formErrors.password2}</Text>
+                    </View> : null}
             </View>
 
 
@@ -190,11 +212,14 @@ const Form = () => {
                     inputOutline
                     label={'UserName'}
                     value={userName}
-                    required
+                    leftIcon={<FontAwesome5 name={'user-graduate'} size={18} style={{color:COLORS.primary}} />}
                     customLabelStyle={{ ...FONTS.robotoregular }}
                     onChangeText={e => { handleChange(e, "userName"), setUserName(e) }}
                 />
-                {formErrors && formErrors.userName ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.userName}</Text></View> : null}
+                {formErrors && formErrors.userName ?
+                    <View style={{ ...styles.ErrorCont }}>
+                        <Text style={{ ...styles.ErrorText }}>{formErrors.userName}</Text>
+                    </View> : null}
             </View>
             <View style={{ width: "85%", marginTop: "2%" }}>
                 <InputBox
@@ -202,6 +227,7 @@ const Form = () => {
                     label={'Phone'}
                     value={phone}
                     maxLength={10}
+                    leftIcon={<FontAwesome5 name={'mobile'} size={18} style={{color:COLORS.primary}} />}
                     customLabelStyle={{ ...FONTS.robotoregular }}
                     onChangeText={e => { handleChange(e, "phonenumber"), setPhone(e) }}
                 />
@@ -218,7 +244,10 @@ const Form = () => {
                 </TouchableOpacity >
             </View> */}
 
-            {formErrors && formErrors.signundef ? <View style={{ ...styles.ErrorCont }}><Text style={{ ...styles.ErrorText }}>{formErrors.signundef}</Text></View> : null}
+            {formErrors && formErrors.signundef ?
+                <View style={{ ...styles.ErrorCont }}>
+                    <Text style={{ ...styles.ErrorText }}>{formErrors.signundef}</Text>
+                </View> : null}
 
             <TouchableOpacity
                 style={[styles.shadow, { width: '100%', height: 40, alignItems: 'center', justifyContent: 'center', marginTop: "6%" }]}
@@ -233,7 +262,8 @@ const Form = () => {
                     <Text style={{ color: COLORS.white, ...FONTS.body3 }}>Sign Up</Text>
                 </LinearGradient>
             </TouchableOpacity>
-
+            </>
+}
         </View>
 
     )

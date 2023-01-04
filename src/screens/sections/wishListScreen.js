@@ -19,6 +19,7 @@ import WebView from 'react-native-webview';
 import { useIsFocused } from "@react-navigation/core";
 import NoWishList from "../../screens/Exceptions/noWishList";
 import { getWishListedCourses } from '../../services/wishlist';
+import NetInfo from '@react-native-community/netinfo';
 
 const WishListScreen = () => {
     console.log("wishlist");
@@ -36,11 +37,20 @@ const WishListScreen = () => {
     const [page, setPage] = useState(1);
     const isFocused = useIsFocused();
     const LoginData = useSelector(state => state.userLoginHandle.data)
-
+    const [network, setNetwork] = useState('')
     const username = LoginData?.data?.userName;
 
     useEffect(() => {
         if (isFocused) {
+            NetInfo.refresh().then(state => {
+                setNetwork(state.isConnected)
+                if (state.isConnected) {
+                    getWishListed();
+                }
+                else {
+                    navigation.navigate("NetworkError");
+                }
+            })
             const getWishListed = async () => {
                 setLoader(true);
                 let token = await AsyncStorage.getItem("loginToken");
@@ -62,9 +72,9 @@ const WishListScreen = () => {
                     };
                 }
             }
-            getWishListed();
+            
         }
-    }, [isFocused])
+    }, [isFocused,network])
 
     function handleBackButtonClick() {
         console.log("navigation done")

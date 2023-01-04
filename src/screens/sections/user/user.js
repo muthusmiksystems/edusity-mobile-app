@@ -24,6 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useIsFocused } from "@react-navigation/core";
+import NetInfo from '@react-native-community/netinfo';
 
 const { width } = Dimensions.get("screen");
 const FirstRoute = () => <General />;
@@ -41,9 +42,19 @@ const Profile = () => {
     const [index, setIndex] = React.useState(0);
     const layout = useWindowDimensions();
     const isFocused = useIsFocused();
+    const [network, setNetwork] = useState('')
     useEffect(() => {
         if (isFocused) {
             console.log("Data in deed")
+            NetInfo.refresh().then(state => {
+                setNetwork(state.isConnected)
+                if (state.isConnected) {
+                    initialLoading();
+                }
+                else {
+                    navigation.navigate("NetworkError");
+                }
+            })
             const initialLoading = async () => {
                 let token = await AsyncStorage.getItem("loginToken");
                 // console.log("new token", Token);
@@ -59,9 +70,9 @@ const Profile = () => {
                     };
                 }
             }
-            initialLoading()
+            
         }
-    }, [LoginDetails, isFocused])
+    }, [LoginDetails, isFocused,network])
 
     const createTwoButtonAlert = () =>
         Alert.alert(

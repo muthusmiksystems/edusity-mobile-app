@@ -27,6 +27,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import { useIsFocused } from "@react-navigation/core";
 import Toast from 'react-native-simple-toast';
 import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import NetInfo from '@react-native-community/netinfo';
 
 const Dashboard = () => {
     console.log("iam inside DashBoard");
@@ -40,6 +41,7 @@ const Dashboard = () => {
     const LoginData = useSelector(state => state.userLoginHandle.data)
     // console.log("LoginReduxData->", LoginData?.data?.role);
     const isFocused = useIsFocused();
+    const [network, setNetwork] = useState('')
 
 
 
@@ -60,6 +62,15 @@ const Dashboard = () => {
     useEffect(() => {
         if (isFocused) {
             console.log("dashbord return")
+            NetInfo.refresh().then(state => {
+                setNetwork(state.isConnected)
+                if (state.isConnected) {
+                    initialLoading();
+                }
+                else {
+                    navigation.navigate("NetworkError");
+                }
+            })
             const initialLoading = async () => {
                 let token = await AsyncStorage.getItem("loginToken");
                 if (token) {
@@ -95,9 +106,8 @@ const Dashboard = () => {
                     // Toast.show("Please fill the laid details to proceed!", Toast.LONG);
                 }
             }
-            initialLoading();
         }
-    }, [isFocused])
+    }, [isFocused,network])
 
     // useEffect(() => {
     //     BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
