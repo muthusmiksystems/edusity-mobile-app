@@ -8,7 +8,7 @@ export const emptyCart=require("../assets/images/empty-cart.png")
 export const chip=require("../assets/images/chip.png")
 export const noCourseGif=require("../assets/images/noCourse.gif")
 export const noNetworkGif=require("../assets/images/wifi.png")
-
+export const noCartGif=require("../assets/images/emptycartgif.gif")
 export default {
     LoginBgImage,
     SignupBgImage,
@@ -19,5 +19,6 @@ export default {
     emptyCart,
     chip,
     noCourseGif,
-    noNetworkGif
+    noNetworkGif,
+    noCartGif
 }

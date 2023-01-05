@@ -31,6 +31,9 @@ const NoNetworkError = () => {
             if (state.isConnected) {
                 navigation.goBack();
             }
+            else{
+                alert("Please Check your network connection!");
+            }
         })
     }
     // unsubscribe();

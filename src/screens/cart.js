@@ -27,13 +27,15 @@ import RazorpayCheckout from 'react-native-razorpay';
 import Toast from 'react-native-simple-toast';
 import NoData from './noCartData';
 import { useIsFocused } from '@react-navigation/native';
+import NetInfo from '@react-native-community/netinfo';
 
 const Cart = () => {
     const dispatch = useDispatch();
     const navigation = useNavigation();
-    const isFocused=useIsFocused();
-  
-    const[Token,setToken]=useState("");
+    const isFocused = useIsFocused();
+    const [network, setNetwork] = useState('')
+
+    const [Token, setToken] = useState("");
     const cartData = useSelector((state) => state.cartList.data)
     // console.log("thor....",cartData)
     // const loader=useSelector((state) => state.loginHandle.loading)
@@ -51,31 +53,40 @@ const Cart = () => {
         setOverlay((state) => !state);
     };
     // console.log("iam inside...............", LoginData.data);
-    const username=LoginData?.data?.userName;
+    const username = LoginData?.data?.userName;
     useEffect(() => {
-        const initialLoading=async()=>{
-        let token=await AsyncStorage.getItem("loginToken");
-        setLoader(true);
-        if(token){
-            setToken(token)
-        dispatch(cartHandler(token)).then(unwrapResult)
-            .then((originalPromiseResult) => {
-                setData(originalPromiseResult.data.Courses);
-         
-                // console.log(originalPromiseResult.data.Courses,"Courses")
+        if (isFocused) {
+            NetInfo.refresh().then(state => {
+                setNetwork(state.isConnected)
+                if (state.isConnected) {
+                    initialLoading();
+                }
+                else {
+                    navigation.navigate("NetworkError");
+                }
             })
-            .catch((rejectedValueOrSerializedError) => {
-                // console.log(" cart List failed Inside catch", rejectedValueOrSerializedError);
-                setLoader(false);
-            })
-        }else{
-            setLoader(false);
-            navigation.replace('Login');
+            const initialLoading = async () => {
+                let token = await AsyncStorage.getItem("loginToken");
+                setLoader(true);
+                if (token) {
+                    setToken(token)
+                    dispatch(cartHandler(token)).then(unwrapResult)
+                        .then((originalPromiseResult) => {
+                            setData(originalPromiseResult.data.Courses);
+
+                            // console.log(originalPromiseResult.data.Courses,"Courses")
+                        })
+                        .catch((rejectedValueOrSerializedError) => {
+                            // console.log(" cart List failed Inside catch", rejectedValueOrSerializedError);
+                            setLoader(false);
+                        })
+                } else {
+                    setLoader(false);
+                    navigation.replace('Login');
+                }
+            }
+
         }
-    }
-        initialLoading();
-
-
     }, [])
 
     const handleViewNavigation = (item) => {
@@ -117,8 +128,8 @@ const Cart = () => {
         //   return;}
         // setModalVisible(true);
     };
-   useEffect(() => {
-        if(isFocused){
+    useEffect(() => {
+        if (isFocused) {
             setOverlay(null);
         }
         console.log("Im theoverlay", overlay)
@@ -135,8 +146,8 @@ const Cart = () => {
                     ></StripePopup>
                 );
             case "razorpay":
-                    console.log("inside case razor")
-                    // navigation.navigate("Razor",{dataSession,totalValue})
+                console.log("inside case razor")
+                // navigation.navigate("Razor",{dataSession,totalValue})
                 return <RazorpayOverlay onClose={popupCloseHandler} data={dataSession} pricing={totalValue} />;
             default:
                 console.log("inside case null")
@@ -145,7 +156,7 @@ const Cart = () => {
     };
     const RazorpayOverlay = (onClose, data, pricing) => {
 
-        {console.log("im the price of total amount................",totalValue)}
+        { console.log("im the price of total amount................", totalValue) }
         var options = {
             name: "Edusity",
             amount: "1000",
@@ -156,9 +167,9 @@ const Cart = () => {
             order_id: data,
             modal: {
                 ondismiss: () => {
-                  onClose((state) => !state);
+                    onClose((state) => !state);
                 },
-              },
+            },
             prefill: {
                 name: LoginData.data.userName,
                 email: LoginData.data.email,
@@ -240,14 +251,14 @@ const Cart = () => {
     return (
         <>
             <KeyboardAvoidingView style={styles.mainContainer}>
-               
+
                 {(!loader) ?
 
                     (Data.length > 0) ?
                         <>
-                          
+
                             <View style={{ flexDirection: "row", alignItems: "center", color: COLORS.black, backgroundColor: COLORS.primary, height: "8%", borderBottomStartRadius: 30, borderBottomEndRadius: 30 }}>
-                                <TouchableOpacity style={{ marginLeft: "4%" }} onPress={()=>navigation.goBack()}>
+                                <TouchableOpacity style={{ marginLeft: "4%" }} onPress={() => navigation.goBack()}>
                                     <MCIcon name="keyboard-backspace" size={RFValue(20)} color={COLORS.white} />
                                 </TouchableOpacity>
                                 <Text style={{ color: COLORS.white, marginLeft: "2%", fontSize: RFValue(18), ...FONTS.robotoregular }}>Cart</Text>
@@ -320,7 +331,7 @@ const Cart = () => {
                         :
                         <>
                             <View>
-                                < NoData  data={username}/>
+                                < NoData data={username} />
                             </View>
                         </>
                     : <LoaderActivity />
