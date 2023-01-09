@@ -25,20 +25,21 @@ const SignUp = ({ navigation }) => {
     return (
         <View style={{ backgroundColor: COLORS.white }}>
             <ImageBackground source={images.LoginBgImage} resizeMode="repeat" style={{ height: "100%", width: "100%" }} >
-                <View style={{ alignItems: 'center', justifyContent: 'center', height: "10%", borderWidth: 0, marginTop: "5%" }}>
-                    <Image
-                        source={icons.Edusitylogo}
-                        resizeMode="contain"
-                        style={{
-                            width: '50%',
-                            height: '60%',
-                        }}
-                    />
-                </View>
-                <View style={{ alignItems: 'center',paddingBottom:"1%" }}>
-                    <Text style={{ ...FONTS.robotomedium, color: COLORS.black, fontSize: RFValue(22), marginTop: "3%" }}>Sign Up</Text>
-                </View>
-                <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: "72%" }}>
+                
+                    <View style={{ alignItems: 'center', justifyContent: 'center', height: "10%", borderWidth: 0,marginTop:"5%" }}>
+                        <Image
+                            source={icons.Edusitylogo}
+                            resizeMode="contain"
+                            style={{
+                                width: '50%',
+                                height: '60%',
+                            }}
+                        />
+                    </View>
+                    <View style={{ alignItems: 'center',paddingBottom:"1%" }}>
+                        <Text style={{ ...FONTS.robotomedium, color: COLORS.black, fontSize: RFValue(22),marginTop:"8%" }}>Sign Up</Text>
+                    </View>
+                    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: "72%" }}>
                     <View style={{ width: "100%", alignItems: "center" }}>
                         <Form />
                         <Pressable style={{ borderWidth: 0 }} onPress={() => navigation.navigate("Login")}>

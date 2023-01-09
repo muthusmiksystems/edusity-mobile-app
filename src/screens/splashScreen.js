@@ -15,17 +15,11 @@ const SplashScreen = props => {
   const [network, setNetwork] = useState('')
   const [loading, setLoading] = useState(false)
   const isFocused =useIsFocused();
-// useEffect(() => {
-//     if(isFocused){
-//       unsubscribe();
-//     }
-//   }, [isFocused]);
 
 
 
   const unsubscribe=()=> {
     NetInfo.refresh().then(state => {
-      console.log("network ",state);
       setNetwork(state)
         if (state.isConnected) {
           setAuthLoaded(true);
@@ -63,10 +57,10 @@ const SplashScreen = props => {
     if (authLoaded && animationLoaded) {
       let Token=await  AsyncStorage.getItem("loginToken");
       if(Token){
-        console.log("data iruku",Token);
+        // console.log("data iruku",Token);
         props.navigation.replace('Home',{screen:'DashBoard'});
       }else{
-        console.log("illa data illa set aggamateenguthu da payale");
+        // console.log("illa data illa set aggamateenguthu da payale");
         props.navigation.replace('Home',{screen:'Search'});
       }
 
@@ -86,7 +80,7 @@ const SplashScreen = props => {
           height: '10%',
         }}
       />
-        <Text style={{color:COLORS.black,fontSize:RFValue(15),fontFamily:"Roboto-Black"}}>Edusity for Greater Learning...</Text>
+        <Text style={{color:COLORS.black,fontSize:RFValue(15),fontFamily:"Roboto-Black"}}>Edusity-Virtual for Greater Learning...</Text>
 
     </View>
   );

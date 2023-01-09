@@ -86,7 +86,7 @@ const Form = () => {
                 .catch((rejectedValueOrSerializedError) => {
                     setLoader(false);
                     Toast.show("Something went wrong please try after some time!", Toast.LONG);
-                    console.log(" Inside catch", rejectedValueOrSerializedError);
+                    // console.log(" Inside catch", rejectedValueOrSerializedError);
                 })
         } else {
             console.log("No Data")
@@ -100,14 +100,14 @@ const Form = () => {
     return (
         <View style={{ width: "100%", alignItems: "center" }}>
           {  loader ?
-            <> 
+            <View> 
             <LoaderKit
                 style={{ height: 25 }}
                 name={'Pacman'} // Optional: see list of animations below
                 size={10} // Required on iOS
                 color={COLORS.primary} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',
             />
-            </>:
+            </View>:
             <>
            <View style={{ width: "85%", marginTop: "2%" }}>
                 <InputBox

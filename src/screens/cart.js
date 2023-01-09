@@ -48,10 +48,11 @@ const Cart = () => {
     const LoginData = useSelector(state => state.userLoginHandle.data)
     const [overlay, setOverlay] = useState(null);
     const [dataSession, setDataSession] = useState();
-    const [modalVisible, setModalVisible] = useState(false);
-    const popupCloseHandler = (e) => {
-        setOverlay((state) => !state);
-    };
+    // const [modalVisible, setModalVisible] = useState(false);
+    // const popupCloseHandler = (e) => {
+    //     console.log("im inside the close handler");
+    //     setOverlay((state) => !state);
+    // };
     // console.log("iam inside...............", LoginData.data);
     const username = LoginData?.data?.userName;
     useEffect(() => {
@@ -87,28 +88,32 @@ const Cart = () => {
             }
 
         }
-    }, [])
+    }, [isFocused,network])
 
     const handleViewNavigation = (item) => {
-        // SetLoader(true);
+        SetLoader(true);
         dispatch(viewCourseHandler(item)).then(unwrapResult)
             .then((originalPromiseResult) => {
-
+                SetLoader(false);
                 navigation.navigate("ViewCourse");
             })
             .catch((rejectedValueOrSerializedError) => {
                 // console.log(" Inside catch", rejectedValueOrSerializedError);
+                SetLoader(false);
             })
-        // SetLoader(false);
+        
     }
     const callCart = () => {
+        SetLoader(true);
         dispatch(cartHandler(Token)).then(unwrapResult)
             .then((originalPromiseResult) => {
                 // console.log("CartList ", originalPromiseResult);
                 setData(originalPromiseResult.data.Courses);
+                SetLoader(false);
             })
             .catch((rejectedValueOrSerializedError) => {
                 // console.log(" cart List failed Inside catch", rejectedValueOrSerializedError);
+                SetLoader(false);
             })
     }
 
@@ -117,87 +122,137 @@ const Cart = () => {
     const handleMakePayment = (Data) => {
         const session = Data[0].SessionID;
         setDataSession(session);
-        console.log("iam inside search value of cartvalueData", session);
-        console.log("iam inside search value of cartvalueData", Data[0].SessionID);
-        setOverlay("razorpay");
-        // if (user.country_code === "IN") {
-        //   setOverlay("razorpay");
-        // } else {
-        //   // stripe
-        //   setOverlay("stripe");
-        //   return;}
-        // setModalVisible(true);
-    };
-    useEffect(() => {
-        if (isFocused) {
-            setOverlay(null);
-        }
-        console.log("Im theoverlay", overlay)
-    }, [isFocused]
-    )
-    const renderOverlay = (source) => {
-        console.log("Im inisde the surc..........", source)
-        switch (source) {
-            case "stripe":
-                return (
-                    <StripePopup
-                        onClose={popupCloseHandler}
-                        cartItems={cartItems}
-                    ></StripePopup>
-                );
-            case "razorpay":
-                console.log("inside case razor")
-                // navigation.navigate("Razor",{dataSession,totalValue})
-                return <RazorpayOverlay onClose={popupCloseHandler} data={dataSession} pricing={totalValue} />;
-            default:
-                console.log("inside case null")
-                return null;
-        }
-    };
-    const RazorpayOverlay = (onClose, data, pricing) => {
-
-        { console.log("im the price of total amount................", totalValue) }
+        // console.log("iam inside search value of cartvalueData", totalValue);
+        let pricing=(totalValue*100).toString();
+        // console.log("iam inside search value of cartvalueData",pricing);
         var options = {
             name: "Edusity",
-            amount: "1000",
             description: "Test Transaction",
             image: "../assets/icons/edusity-logo.png",
-            currency: 'INR',
             key: "rzp_test_0YBgt6YFSNUirq",
-            order_id: data,
-            modal: {
-                ondismiss: () => {
-                    onClose((state) => !state);
-                },
-            },
+            order_id: dataSession,
+            currency: 'USD',
+            amount: pricing,
             prefill: {
-                name: LoginData.data.userName,
-                email: LoginData.data.email,
+                name: "buusha",
+                email: "buusha.br@gmail.com",
                 contact: 8939423416,
             },
-        };
+        }
+        // console.log("im the checkout................",options)
+        // RazorpayCheckout.open(options).then((data) => {
+        //     // handle success
+        //     alert(`Success: ${data.razorpay_payment_id}`);
+        //   }).catch((error) => {
+        //     // handle failure
+        //     alert(`Error: ${error.code} | ${error.description}`);
+        //   });
         RazorpayCheckout.open(options)
-            .then(async result => {
+            .then  (async (result) => {
                 // alert(`Success: ${result.razorpay_payment_id}`);
+                let Token =await  AsyncStorage.getItem("loginToken");
                 var sessionId = { "sessionId": result.razorpay_payment_id }
-                console.log("Im inisde the data of Cart page....", result)
-                let cartremoval = `https://backend-linux-payment.azurewebsites.net/v2/checkout?country=IN`
+                // console.log("Im inisde the data of Cart page....", result)
+
+                let cartremoval = `https://backend-linux-payment.azurewebsites.net/v2/checkout?country=IN`;
                 const response = await axios.post(cartremoval, sessionId, {
                     headers: {
                         Authorization: `Bearer ${Token}`,
                     }
                 }).then(result => {
+                    // console.log(result, "hebrew..............", sessionId, Token);
+
                     navigation.navigate('Checkout')
+                }).catch(err => {
+                    // console.log("err in removal", err)
                 });
-                console.log("im th echeckout token.................", Token);
-                console.log("im the response of checkout data.......", response);
+                // console.log(sessionId,"im th echeckout token.................", Token);
+                // console.log("im the response of checkout data.......", response);
             })
             .catch(error => {
-                Toast.show(originalPromiseResult.errormessage, "RazorPay Rejection", Toast.LONG);
+                // Toast.show(error, "RazorPay Rejection", Toast.LONG);
+                alert(`Error: ${error.description}`);
+                // console.log("im th echeckout error.................", error);
             });
-    }
+    };
+    // useEffect(() => {
+    //     // console.log("im the setoverlay value", overlay)
+    // }, [overlay])
+    /* useEffect(() => {
+         
+             setOverlay(null);
+         }
+         console.log("Im theoverlay", overlay,isFocused)
+     }, [isFocused]
+     ) */
+    // const renderOverlay = () => {
+    //     console.log("Im inisde the surc..........", overlay)
+    //     switch (overlay) {
+    //         case "stripe":
+    //             return (
+    //                 <StripePopup
+    //                     onClose={popupCloseHandler}
+    //                     cartItems={cartItems}
+    //                 ></StripePopup>
+    //             );
+    //         case "razorpay":
+    //             console.log("inside case razor");
+
+    //             // navigation.navigate("Razor",{dataSession,totalValue})
+    //             return <RazorpayOverlay onClose={popupCloseHandler} data={dataSession} pricing={totalValue} />;
+    //         default:
+    //             console.log("inside case null")
+    //             return null;
+    //     }
+    // };
+    // const RazorpayOverlay = (onClose, data, pricing) => {
+
+    //     { console.log("im the price of total amount................", totalValue) }
+    //     var options = {
+    //         name: "Edusity",
+    //         amount: "1000",
+    //         description: "Test Transaction",
+    //         image: "../assets/icons/edusity-logo.png",
+    //         currency: 'INR',
+    //         key: "rzp_test_0YBgt6YFSNUirq",
+    //         order_id: data,
+    //         modal: {
+    //             ondismiss: () => {
+    //                 onClose((state) => !state);
+    //             },
+    //         },
+    //         prefill: {
+    //             name: LoginData.data.userName,
+    //             email: LoginData.data.email,
+    //             contact: 8939423416,
+    //         },
+    //     };
+    //     RazorpayCheckout.open(options)
+    //         .then(async (result) => {
+    //             // alert(`Success: ${result.razorpay_payment_id}`);
+    //             var sessionId = { "sessionId": result.razorpay_payment_id }
+    //             console.log("Im inisde the data of Cart page....", result)
+    //             //setOverlay(null);
+    //             let cartremoval = `https://backend-linux-payment.azurewebsites.net/v2/checkout?country=IN`
+    //             const response = await axios.post(cartremoval, sessionId, {
+    //                 headers: {
+    //                     Authorization: `Bearer ${Token}`,
+    //                 }
+    //             }).then((data) => {
+    //                 console.log("waiting for the data ", data);
+    //                 navigation.navigate('Checkout')
+    //             });
+
+    //         })
+    //         .catch(error => {
+    //             console.log("im the catch data inisde the loggics")
+    //             navigation.navigate('Home', { screen: 'Search' });
+    //             Toast.show(BushaoriginalPromiseResult.errormessage, "RazorPay Rejection", Toast.LONG);
+    //         });
+    // }
     const removeItem = async (id) => {
-        console.log(id, "............................id")
+        // console.log(id, "............................id")
+        SetLoader(true);
         let removeUrl = `https://backend-linux-payment.azurewebsites.net/v2/cart/${id}?country=IN&isBundle=0`
         return axios
             .delete(removeUrl, {
@@ -209,16 +264,18 @@ const Cart = () => {
                 // console.log("im th Removal item token..................", Token)
                 callCart();
                 // console.log("........................................response", response.data)
+                SetLoader(false);
                 return response.data;
-            }).catch(err => { console.log(err, "error listed") })
+            }).catch(err => { console.log(err, "error listed"), SetLoader(false); })
     }
     const deleteCart = async () => {
+        
         await axios.delete(cartListUrl, { headers: { 'Authorization': "Bearer " + Token } })
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
                 callCart()
             })
-            .catch(err => { console.log(err, "error listed") })
+            .catch(err => { console.log(err, "error listed"), SetLoader(false)})
     }
     useEffect(() => {
         // console.log(cartData,"cartData2");
@@ -234,7 +291,7 @@ const Cart = () => {
         setLoader(false);
 
     }, [cartData])
-    console.log("im the cart data in cart page", Data)
+    // console.log("im the cart data in cart page", Data)
 
     const LoaderActivity = () => {
         return (
@@ -251,14 +308,14 @@ const Cart = () => {
     return (
         <>
             <KeyboardAvoidingView style={styles.mainContainer}>
-
+               
                 {(!loader) ?
 
                     (Data.length > 0) ?
                         <>
-
+                          
                             <View style={{ flexDirection: "row", alignItems: "center", color: COLORS.black, backgroundColor: COLORS.primary, height: "8%", borderBottomStartRadius: 30, borderBottomEndRadius: 30 }}>
-                                <TouchableOpacity style={{ marginLeft: "4%" }} onPress={() => navigation.goBack()}>
+                                <TouchableOpacity style={{ marginLeft: "4%" }} onPress={()=>navigation.goBack()}>
                                     <MCIcon name="keyboard-backspace" size={RFValue(20)} color={COLORS.white} />
                                 </TouchableOpacity>
                                 <Text style={{ color: COLORS.white, marginLeft: "2%", fontSize: RFValue(18), ...FONTS.robotoregular }}>Cart</Text>
@@ -311,7 +368,7 @@ const Cart = () => {
                                 </View>
                                 <View style={{ flexDirection: "row", height: "35%", width: "100%", }}>
                                     <View style={{ flexDirection: "column", width: "50%", alignItems: "center" }}>
-                                        <TouchableOpacity style={{ backgroundColor: COLORS.gray, borderRadius: 10, width: "90%", height: "90%", justifyContent: "center" }} onPress={() => deleteCart()}>
+                                        <TouchableOpacity style={{ backgroundColor: COLORS.gray, borderRadius: 10, width: "90%", height: "90%", justifyContent: "center" }} onPress={() => {deleteCart(),SetLoader(true)}}>
                                             <Text style={{ color: COLORS.white, padding: "2%", marginHorizontal: "5%", fontSize: RFValue(14), ...FONTS.robotoregular, textAlign: "center" }}>Empty the Cart</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -331,12 +388,23 @@ const Cart = () => {
                         :
                         <>
                             <View>
-                                < NoData data={username} />
+                                < NoData  data={username}/>
                             </View>
                         </>
                     : <LoaderActivity />
                 }
-                {overlay && renderOverlay(overlay)}
+
+
+                {/* RazorpayCheckout.open(options).then((data) => {
+                        // handle success
+                        alert(`Success: ${data.razorpay_payment_id}`);
+                    }).catch((error) => {
+                        // handle failure
+                        alert(`Error: ${error.code} | ${error.description}`);
+                    }); */}
+
+
+
             </KeyboardAvoidingView>
         </>
     );

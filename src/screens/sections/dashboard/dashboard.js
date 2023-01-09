@@ -30,7 +30,7 @@ import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import NetInfo from '@react-native-community/netinfo';
 
 const Dashboard = () => {
-    console.log("iam inside DashBoard");
+    // console.log("iam inside DashBoard");
     const dispatch = useDispatch();
     const navigation = useNavigation();
     // const logiParam = route.params;
@@ -48,7 +48,7 @@ const Dashboard = () => {
 
 
     useEffect(() => {
-        console.log("done and dusted..........", LoginData)
+        // console.log("done and dusted..........", LoginData)
         if (LoginData) {
             if (LoginData?.data?.LastName) {
                 setUserName(LoginData?.data?.firstName + LoginData?.data?.LastName)
@@ -61,8 +61,8 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (isFocused) {
-            console.log("dashbord return")
-            NetInfo.refresh().then(state => {
+            // console.log("dashbord return")
+            NetInfo.fetch().then(state => {
                 setNetwork(state.isConnected)
                 if (state.isConnected) {
                     initialLoading();
@@ -77,7 +77,7 @@ const Dashboard = () => {
                     setLoader(true);
                     dispatch(userLoginHanlder(token)).then(unwrapResult)
                         .then((originalPromiseResult) => {
-                            console.log("successfully returned to login with response ", originalPromiseResult);
+                            // console.log("successfully returned to login with response ", originalPromiseResult);
                             if (originalPromiseResult.data) {
                                 const param = originalPromiseResult.data;
                                 navigation.navigate('Home', {
@@ -96,7 +96,7 @@ const Dashboard = () => {
                             console.log(" Inside catch", rejectedValueOrSerializedError);
                         })
                 } else {
-                    console.log("No Token")
+                    // console.log("No Token")
                     setLoader(false);
                     navigation.navigate('Login');
                     BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
@@ -118,7 +118,7 @@ const Dashboard = () => {
 
 
     function handleBackButtonClick() {
-        console.log("navigation done")
+        // console.log("navigation done")
         navigation.navigate('Home', { screen: 'Search' });
         return true;
     }
@@ -128,7 +128,7 @@ const Dashboard = () => {
         (LoginData?.data?.role)
             ?
             <View>
-                {console.log("iside render dashbord")}
+                {/* {console.log("iside render dashbord")} */}
                 <SafeAreaView style={{
                     backgroundColor: COLORS.lightGray, height: "100%"
                 }}>
@@ -165,7 +165,7 @@ const Dashboard = () => {
             </View>
             :
             <View style={{ height: "100%", width: "100%", alignItems: "center", justifyContent: "center" }}>
-                {console.log("error render")}
+                {/* {console.log("error render")} */}
                 <LoaderKit
                     style={{ width: 50, height: 50 }}
                     name={'BallPulse'} // Optional: see list of animations below

@@ -22,7 +22,7 @@ import { getWishListedCourses } from '../../services/wishlist';
 import NetInfo from '@react-native-community/netinfo';
 
 const WishListScreen = () => {
-    console.log("wishlist");
+    // console.log("wishlist");
     const dispatch = useDispatch();
     const navigation = useNavigation();
     // const Token = useSelector(state => state.loginHandle?.data?.data);
@@ -57,7 +57,7 @@ const WishListScreen = () => {
                 setLoginToken(token);
                 if (token) {
                     let purchasedData = await getWishListedCourses(token).then(data => {
-                        console.log(data, "hellosegwrgwrgwr");
+                        // console.log(data, "hellosegwrgwrgwr");
                         setData(data?.data);
                         setTotalCourse(data?.data.length);
                         setLoader(false);
@@ -77,7 +77,7 @@ const WishListScreen = () => {
     }, [isFocused,network])
 
     function handleBackButtonClick() {
-        console.log("navigation done")
+        // console.log("navigation done")
         navigation.navigate('Home', { screen: 'Search' });
         return true;
     }
@@ -125,7 +125,8 @@ const WishListScreen = () => {
                             // }}
                             scrollEnabled={true}
                             keyExtractor={item => item.ID}
-                            extraData={flalistRefresh}
+                            // extraData={flalistRefresh}
+                            overScrollMode={'never'}
                             renderItem={({ item }) => (
                                 <View style={{ backgroundColor: COLORS.white, marginHorizontal: "2%", marginBottom: "2%", borderRadius: 10 }}>
                                     <View style={{ width: "100%", flexDirection: "row" }}>

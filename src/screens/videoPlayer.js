@@ -18,7 +18,7 @@ import NetInfo from '@react-native-community/netinfo';
 const ViPlayer = ({ route }) => {
 
     const videoLink = route.params;
-    console.log(videoLink, "LINk");
+    // console.log(videoLink, "LINk");
     const navigation = useNavigation();
     const isFocused = useIsFocused();
     const [network, setNetwork] = useState('')

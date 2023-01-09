@@ -65,51 +65,52 @@ const Login = ({ navigation }) => {
 
     // Api action only onchange of the username 
     useEffect(() => {
-        console.log("hello", data && Object.keys(data).length)
+        // console.log("hello", data && Object.keys(data).length)
         if (data && Object.keys(data).length > 1) {
             setLoader(true);
             dispatch(loginHanlder(data))
                 .then(unwrapResult)
                 .then(async (originalPromiseResult) => {
-                    console.log("successfully returned to login with response ", originalPromiseResult.data);
+                    // console.log("successfully returned to login with response ", originalPromiseResult.data);
                     if (originalPromiseResult.data) {
                         setErrorLogin("");
                         await AsyncStorage.setItem('loginToken', originalPromiseResult.data);
-                        console.log(await AsyncStorage.getItem('loginToken'), "helloooo")
-                        console.log(originalPromiseResult.data)
+                        // console.log(await AsyncStorage.getItem('loginToken'), "helloooo")
+                        // console.log(originalPromiseResult.data)
                         setToken(originalPromiseResult.data)
                     } else {
                         setLoader(false);
-                        console.log(originalPromiseResult.errormessage, "error")
+                        // console.log(originalPromiseResult.errormessage, "error")
                         Toast.show(originalPromiseResult.errormessage, Toast.LONG);
                         setErrorLogin(originalPromiseResult.errormessage)
                         if (originalPromiseResult.errorCode == 2238) {
                             setErrorLogin("Username and Password not Found. Please Create an Account")
                             Toast.show(originalPromiseResult.errormessage, Toast.LONG);
-                            console.log(errorLogin, "error in login")
+                            // console.log(errorLogin, "error in login")
                         } else if (originalPromiseResult.errorCode == 2219) {
                             setErrorLogin("Please verify the mail sent and try again")
                             Toast.show(originalPromiseResult.errormessage, Toast.LONG);
-                            console.log(errorLogin, "error in login")
+                            // console.log(errorLogin, "error in login")
                         }
                     }
                 })
                 .catch((rejectedValueOrSerializedError) => {
-                    console.log(" Inside catch", rejectedValueOrSerializedError);
+                    // console.log(" Inside catch", rejectedValueOrSerializedError);
                     Toast.show("Something went wrong please try after some time!", Toast.LONG);
                     setLoader(false);
                 })
-        } else {
-            console.log("please fill the Details to proceed")
         }
+        //  else {
+        //     console.log("please fill the Details to proceed")
+        // }
     }, [data]);
 
     useEffect(() => {
-        console.log(AsyncStorage.getItem("loginToken"), "token value on disptach")
+        // console.log(AsyncStorage.getItem("loginToken"), "token value on disptach")
         if (token) {
             dispatch(userLoginHanlder(token)).then(unwrapResult)
                 .then((originalPromiseResult) => {
-                    console.log("successfully returned to login with response ", originalPromiseResult.errorCode);
+                    // console.log("successfully returned to login with response ", originalPromiseResult.errorCode);
                     if (originalPromiseResult.data) {
                         setEmail("");
                         setPassword("");
@@ -126,16 +127,17 @@ const Login = ({ navigation }) => {
                     }
                 })
                 .catch((rejectedValueOrSerializedError) => {
-                    console.log(" Inside catch", rejectedValueOrSerializedError);
+                    // console.log(" Inside catch", rejectedValueOrSerializedError);
                 })
-        } else {
-            console.log("No Token")
-            // Toast.show("Please fill the laid details to proceed!", Toast.LONG);
-        }
+        } 
+        // else {
+        //     console.log("No Token")
+        //     // Toast.show("Please fill the laid details to proceed!", Toast.LONG);
+        // }
 
     }, [token])
     useEffect(() => {
-        console.log(errorPassword, password, "password error")
+        // console.log(errorPassword, password, "password error")
     }, [errorPassword])
 
     const handleEmailBox = () => {
@@ -144,7 +146,7 @@ const Login = ({ navigation }) => {
         }
     }
     const handlePasswordBox = () => {
-        console.log("box pass")
+        // console.log("box pass")
         if (errorPassword) {
             setPassword(""), setErrorPassword("");
         }

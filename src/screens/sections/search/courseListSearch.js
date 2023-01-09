@@ -23,6 +23,9 @@ import { FloatingAction } from "react-native-floating-action";
 import { addtoCart } from '../../../services/cartService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { wishListApi, wishListRemoverApi } from '../../../services/wishlist';
+import NetInfo from "@react-native-community/netinfo";
+import { useIsFocused } from "@react-navigation/core";
+
 const CourseList = ({ allCourses, cartData }) => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -41,42 +44,67 @@ const CourseList = ({ allCourses, cartData }) => {
     const [loader, SetLoader] = useState(false);
     const [cartLoad, setCartLoad] = useState(true);
     const [currentId, setCurrentId] = useState("");
-
+    const [network, setNetwork] = useState('')
     const [refreshList, setRefreshList] = useState(false);
     const [totalFilterPage, setTotalFilterPage] = useState(0);
     const [filterPageNo, setFilterPageNo] = useState(0);
     const [filteredCount, setFilterdCourse] = useState(null);
-
+    const isFocused = useIsFocused();
     const [page, setPage] = useState(1);
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [submission, setSubmission] = useState(false);
+    const [cartBtnLoader, setCartBtnLoader] = useState("");
     const [contentVerticalOffset, setContentVerticalOffset] = useState(null);
     // const token = useSelector((state) => state.loginHandle.data)
 
-
-    const handleWishlist = async (index) => {
-        if (showHeart[index] == 0) {
-            showHeart[index] = 1;
-            setShowHeart(showHeart)
-            let wishlistedData = await wishListApi(Data[index].ID, key).then(data => { console.log("wishlisted", data) })
-        } else {
-            showHeart[index] = 0;
-            setShowHeart(showHeart)
-            let wishlistedData = await wishListRemoverApi(Data[index].ID, key).then(data => { console.log("wishlisted", data) })
+    useEffect(() => {
+        if (isFocused) {
+            NetInfo.addEventListener(networkState => {
+                // console.log("Is connected? - ", networkState.isConnected);
+                // if ((networkState.isConnected) === "true") {
+                setNetwork(networkState.isConnected);
+                // }
+            });
         }
-        setFlatListRefresh(!flalistRefresh);
+    }, [isFocused,network])
+    const handleWishlist = async (index) => {
+        if (network) {
+            if (showHeart[index] == 0) {
+                showHeart[index] = 1;
+                setShowHeart(showHeart)
+                let wishlistedData = await wishListApi(Data[index].ID, key).then(data => { console.log("wishlisted", data) })
+            } else {
+                showHeart[index] = 0;
+                setShowHeart(showHeart)
+                let wishlistedData = await wishListRemoverApi(Data[index].ID, key).then(data => { console.log("wishlisted", data) })
+            }
+            setFlatListRefresh(!flalistRefresh);
+        }
+        else {
+            navigation.navigate("NetworkError");
+        }
     }
     const handleAddCart = async (id) => {
 
         // console.log("new token", key);
+   if (network) {
         if (key) {
-            let result = await addtoCart(id, key);
+            // let arry=cartBtnLoader.push(id)
+            setCartBtnLoader(id);
+            let result = await addtoCart(id, key).then(response=>{
+                
+                setCartBtnLoader( null)
+            });
             // console.log(result, "hello");
             dispatch(cartHandler(key));
         }
         else {
             navigation.navigate("Login");
+}
+        }
+        else {
+            navigation.navigate("NetworkError");
         }
     }
     const refresh = () => {
@@ -121,7 +149,7 @@ const CourseList = ({ allCourses, cartData }) => {
                     return response.data
                 })
                     .catch((err) => {
-                        // console.log(err);
+                        navigation.navigate("ServerError");
                         setRefreshList(false);
                     })
             }
@@ -157,7 +185,7 @@ const CourseList = ({ allCourses, cartData }) => {
                     return response.data
                 })
                     .catch((err) => {
-                        // console.log(err);
+                        navigation.navigate("ServerError");
                         setRefreshList(false);
                     })
             }
@@ -198,13 +226,13 @@ const CourseList = ({ allCourses, cartData }) => {
                     setData(newdata);
                     setShowHeart(newdata.map(a => a.isWishlisted))
                     setFilterPageNo(1);
-                    SetLoader(false);
-                    setRefreshList(false);
+                    SetLoader(false); 
+                    setRefreshList(false)
                     if (contentVerticalOffset > 200) { ScrollRef.current.scrollToOffset({ offset: 0, animated: true }) };
                     return response.data
                 })
                     .catch((err) => {
-                        console.log(err);
+                        navigation.navigate("ServerError");
                     })
 
                 setRefreshList(false);
@@ -220,9 +248,9 @@ const CourseList = ({ allCourses, cartData }) => {
 
         }
     }, [submission])
-    useEffect(() => {
-        console.log("changed", Data)
-    }, [Data])
+    // useEffect(()=>{
+    //     console.log("changed",Data)
+    // },[Data])
 
     const [key, setKey] = useState("")
     useEffect(() => {
@@ -231,25 +259,25 @@ const CourseList = ({ allCourses, cartData }) => {
             setRefreshList(true);
             SetLoader(true)
             let newToken = await AsyncStorage.getItem("loginToken")
-            console.log("ffff", allCourses, newToken, "gggg");
-            if (newToken) {
-                setKey(newToken);
-                setData(allCourses.data)
-                setShowHeart(allCourses.data.map(a => a.isWishlisted))
-                console.log("there........................", Data)
-                setRefreshList(false);
-                SetLoader(false)
-                console.log("there........................", allCourses.data.map(a => a.isWishlisted))
-                console.log("there........................", Data)
-            } else {
-                console.log("helooo not working ", allCourses.data)
-                setKey(null);
+            // console.log("ffff",allCourses,newToken,"gggg");
+            if (newToken) { 
+            setKey(newToken); 
+            setData(allCourses.data)
+            setShowHeart(allCourses.data.map(a => a.isWishlisted))
+            // console.log("there........................",Data)
+            setRefreshList(false);
+            SetLoader(false)
+            // console.log("there........................",allCourses.data.map(a => a.isWishlisted))
+            // console.log("there........................",Data)
+            }else{
+                // console.log("helooo not working ",allCourses.data)
+                setKey(null); 
                 setData(allCourses.data);
                 setRefreshList(false);
                 SetLoader(false)
             }
-            setFlatListRefresh(!flalistRefresh)
-            console.log("there........................", Data)
+      setFlatListRefresh(!flalistRefresh)
+    //   console.log("there........................",Data)
 
         }
         initial()
@@ -286,6 +314,7 @@ const CourseList = ({ allCourses, cartData }) => {
         },
     ]
     const handleViewNavigation = (item) => {
+        if(network){
         SetLoader(true);
         dispatch(viewCourseHandler(item.ID)).then(unwrapResult)
             .then((originalPromiseResult) => {
@@ -295,10 +324,13 @@ const CourseList = ({ allCourses, cartData }) => {
 
             })
             .catch((rejectedValueOrSerializedError) => {
-                // console.log(" Inside catch", rejectedValueOrSerializedError);
+                navigation.navigate("ServerError");
                 SetLoader(false);
             })
-
+        }
+        else{
+            navigation.navigate("NetworkError");
+        }
     }
 
     const popUpFilter = () => {
@@ -341,10 +373,10 @@ const CourseList = ({ allCourses, cartData }) => {
             </View> :
             <View style={styles.mainContainer}>
                 {(Data?.length != 0) ? <Text style={{ color: COLORS.black, fontSize: RFValue(12, 580), ...FONTS.robotoregular, margin: "1%" }}>All Courses({(selectedLevel || selectedCategory) ? filteredCount : totalCourses})</Text> : null}
-                {(Data?.length !== 0 && showHeart.length > 0) ?
+                {(Data?.length !== 0 && showHeart.length>0) ?
 
                     <>
-                        {/* {console.log( key)} */}
+                         {/* {console.log( key)} */}
                         <FlatList
                             data={Data}
                             ref={ScrollRef}
@@ -356,92 +388,92 @@ const CourseList = ({ allCourses, cartData }) => {
                             extraData={flalistRefresh}
                             renderItem={({ item, index }) => (
                                 // (!item.isPurchased) ?
-                                <View onPress={() => handleViewNavigation(item)} style={styles.mainTouchable}>
-                                    {console.log("Dataaaaaaa", Data[0].CourseName)}
-                                    {/* {console.log("GTfrfrfrfrfrfrfr",item)} */}
-                                    <View style={{ backgroundColor: COLORS.white, marginVertical: "1%", marginHorizontal: "2%", borderRadius: 10, padding: "2%" }}>
-                                        <View style={{ width: "100%", flexDirection: "row" }}>
-                                            <TouchableOpacity style={{ backgroundColor: COLORS.white, width: "35%", flexDirection: "column", justifyContent: "center" }} onPress={() => handleViewNavigation(item)}>
-                                                <View style={styles.coulmnImage}>
-                                                    {(item.imageFiles.length > 0) ?
-                                                        <Image
-                                                            source={{ uri: "https://cdn.edusity.com/" + item.imageFiles[0].fileName }}
-                                                            resizeMode="contain"
+                                    <View style={styles.mainTouchable}>
+                                       {/* {console.log("Dataaaaaaa",Data[0].CourseName)} */}
+                                       {/* {console.log("GTfrfrfrfrfrfrfr",item)} */} 
+                                        <View style={{ backgroundColor: COLORS.white, marginVertical: "1%", marginHorizontal: "2%", borderRadius: 10, padding: "2%" }}>
+                                            <View style={{ width: "100%", flexDirection: "row" }}>
+                                                <TouchableOpacity style={{ backgroundColor: COLORS.white, width: "35%", flexDirection: "column", justifyContent: "center" }} onPress={() => handleViewNavigation(item)}>
+                                                    <View style={styles.coulmnImage}>
+                                                        {(item.imageFiles.length > 0) ?
+                                                            <Image
+                                                                source={{ uri: "https://cdn.edusity.com/" + item.imageFiles[0].fileName }}
+                                                                resizeMode="contain"
 
-                                                            style={{
-                                                                width: "98%",
-                                                                height: 130,
-                                                                margin: "1%",
-                                                                borderRadius: 8,
-                                                            }}
-                                                        /> : <Image
-                                                            source={{ uri: "https://cdn.edusity.com/" + "courses/2382/85883a4c-c61f-456f-953f-01b94482088d.png" }}
-                                                            resizeMode="contain"
+                                                                style={{
+                                                                    width: "98%",
+                                                                    height: 130,
+                                                                    margin: "1%",
+                                                                    borderRadius: 8,
+                                                                }}
+                                                            /> : <Image
+                                                                source={{ uri: "https://cdn.edusity.com/" + "courses/2382/85883a4c-c61f-456f-953f-01b94482088d.png" }}
+                                                                resizeMode="contain"
 
-                                                            style={{
-                                                                width: "88%",
-                                                                height: 100,
-                                                                margin: "1%",
-                                                                borderRadius: 8,
-                                                            }}
-                                                        />}
-                                                </View>
-                                            </TouchableOpacity>
-                                            <View style={{ width: "65%", flexDirection: "column", padding: "1%" }}>
-                                                <View style={{ width: "100%", flexDirection: "row", borderWidth: 0 }}>
-                                                    <View style={{ width: "90%", flexDirection: "column" }}>
-                                                        <Text style={{ fontSize: RFValue(16), marginVertical: "2%", color: COLORS.black, ...FONTS.robotomedium }}>{item.CourseName}{"\n"}
-                                                            <Text style={{ fontSize: RFValue(10), marginVertical: "2%", color: COLORS.black, ...FONTS.robotoregular }}>{item.Category}</Text></Text>
+                                                                style={{
+                                                                    width: "88%",
+                                                                    height: 100,
+                                                                    margin: "1%",
+                                                                    borderRadius: 8,
+                                                                }}
+                                                            />}
                                                     </View>
-                                                    {key ? <TouchableOpacity onPress={() => handleWishlist(index)} style={{ width: "10%", flexDirection: "column", alignItems: "center", justifyContent: "space-around" }}>
-
-                                                        {(showHeart[index] == 0) ? <MCIcon name="cards-heart-outline" size={RFValue(20)} color={"red"} /> :
-                                                            <MCIcon name="cards-heart" size={RFValue(20)} color={"red"} />}
-                                                    </TouchableOpacity> : null}
-                                                </View>
-                                                <Text style={{ padding: "1%" }}>
-                                                    <Image
-                                                        source={icons.LevelIcon}
-                                                        resizeMode="contain"
-                                                        style={{ width: RFValue(15), height: RFValue(15), }}
-                                                    />
-                                                    <Text style={{ fontSize: RFValue(13), marginVertical: "2%", color: COLORS.black, ...FONTS.robotoregular }} > {item.Level}</Text>
-                                                </Text>
-                                                <View style={styles.details}>
-                                                    <View style={{ flexDirection: "column", width: "100%" }}>
-                                                        <View style={{ flexDirection: "row", width: "100%" }}>
-                                                            <View style={{ flexDirection: "column", width: "70%" }}>
-                                                                <Text style={{ padding: "2%" }}>
-                                                                    <Image
-                                                                        source={icons.Tutor}
-                                                                        resizeMode="contain"
-                                                                        style={{ width: RFValue(15), height: RFValue(15), }}
-                                                                    />
-                                                                    <Text style={styles.Brand}>  {item.instructorName}</Text></Text>
-                                                                <Text style={styles.ratings}>
-                                                                    <View>
-                                                                        <Rating
-                                                                            type='star'
-                                                                            ratingCount={(item.StarRating) ? item.StarRating : 5}
-                                                                            imageSize={RFValue(16)}
-                                                                            showRating={false}
-                                                                            isDisabled={true}
-                                                                            ratingColor='#8830c4'
+                                                </TouchableOpacity>
+                                                <View style={{ width: "65%", flexDirection: "column", padding: "1%" }}>
+                                                    <View style={{ width: "100%", flexDirection: "row", borderWidth: 0 }}>
+                                                        <View style={{ width: "90%", flexDirection: "column" }}>
+                                                            <Text style={{ fontSize: RFValue(16), marginVertical: "2%", color: COLORS.black, ...FONTS.robotomedium }}>{item.CourseName}{"\n"}
+                                                                <Text style={{ fontSize: RFValue(10), marginVertical: "2%", color: COLORS.black, ...FONTS.robotoregular }}>{item.Category}</Text></Text>
+                                                        </View>
+                                                        {key ? <TouchableOpacity onPress={() => handleWishlist(index)} style={{ width: "10%", flexDirection: "column", alignItems: "center", justifyContent: "space-around" }}>
+                                                           
+                                                            {(showHeart[index] == 0) ? <MCIcon name="cards-heart-outline" size={RFValue(20)} color={"red"} /> :
+                                                                <MCIcon name="cards-heart" size={RFValue(20)} color={"red"} />}
+                                                        </TouchableOpacity> : null}
+                                                    </View>
+                                                    <Text style={{ padding: "1%" }}>
+                                                        <Image
+                                                            source={icons.LevelIcon}
+                                                            resizeMode="contain"
+                                                            style={{ width: RFValue(15), height: RFValue(15), }}
+                                                        />
+                                                        <Text style={{ fontSize: RFValue(13), marginVertical: "2%", color: COLORS.black, ...FONTS.robotoregular }} > {item.Level}</Text>
+                                                    </Text>
+                                                    <View style={styles.details}>
+                                                        <View style={{ flexDirection: "column", width: "100%" }}>
+                                                            <View style={{ flexDirection: "row", width: "100%" }}>
+                                                                <View style={{ flexDirection: "column", width: "70%" }}>
+                                                                    <Text style={{ padding: "2%" }}>
+                                                                        <Image
+                                                                            source={icons.Tutor}
+                                                                            resizeMode="contain"
+                                                                            style={{ width: RFValue(15), height: RFValue(15), }}
                                                                         />
+                                                                        <Text style={styles.Brand}>  {item.instructorName}</Text></Text>
+                                                                    <Text style={styles.ratings}>
+                                                                        <View>
+                                                                            <Rating
+                                                                                type='star'
+                                                                                ratingCount={(item.StarRating) ? item.StarRating : 5}
+                                                                                imageSize={RFValue(16)}
+                                                                                showRating={false}
+                                                                                isDisabled={true}
+                                                                                ratingColor='#8830c4'
+                                                                            />
 
-                                                                    </View>
-                                                                </Text>
+                                                                        </View>
+                                                                    </Text>
+                                                                </View>
                                                             </View>
                                                         </View>
                                                     </View>
-                                                </View>
-                                                <View style={{ alignItems: "center" }}>
-                                                    <Text style={styles.location}>${item.EnrollmentFee}</Text>
+                                                    <View style={{ alignItems: "center" }}>
+                                                        <Text style={styles.location}>${item.EnrollmentFee}</Text>
+                                                    </View>
                                                 </View>
                                             </View>
-                                        </View>
-                                        {/* <Divider /> */}
-                                        {(!item.isPurchased) ?
+                                            {/* <Divider /> */}
+                                           { (!item.isPurchased) ?
                                             <View style={{ flexDirection: "row", marginVertical: "2%" }}>
                                                 <View style={{ flexDirection: "column", width: "50%", justifyContent: "center", alignItems: "center" }}>
 
@@ -454,33 +486,37 @@ const CourseList = ({ allCourses, cartData }) => {
                                                 <View style={{ flexDirection: "column", width: "50%", alignItems: "center" }}>
                                                     {/* {console.log(item.isPurchased)} */}
                                                     {!(cartArray.includes(`${item.ID}`)) ?
-                                                        <TouchableOpacity style={{ backgroundColor: COLORS.primary, width: "80%", flexDirection: "row", padding: "4%", alignItems: "center", borderRadius: 10 }} onPress={() => handleAddCart(item.ID)} >
-                                                            {(cartLoad && currentId != item.Id) ? <><MCIcon name="cart-plus" size={RFValue(20)} color={"white"} style={{ marginHorizontal: "5%", flexDirection: "column" }} />
-                                                                <Text style={{ color: "white", ...FONTS.robotoregular, marginLeft: "6%" }}>Add to Cart</Text></> :
-                                                                <>
+                                                        <>
+                                                            {(cartBtnLoader!=item.ID) ?
+                                                                <TouchableOpacity style={{ backgroundColor: COLORS.primary, width: "80%", flexDirection: "row", padding: "4%", alignItems: "center", borderRadius: 10 }} onPress={() => handleAddCart(item.ID)} >
+                                                                    <MCIcon name="cart-plus" size={RFValue(20)} color={"white"} style={{ marginHorizontal: "5%", flexDirection: "column" }} />
+                                                                    <Text style={{ color: "white", ...FONTS.robotoregular, marginLeft: "6%" }}>Add to Cart</Text>
+                                                                </TouchableOpacity> :
+                                                                <View style={{ backgroundColor: COLORS.primary, width: "80%", justifyContent:"center" ,padding: "4%", alignItems: "center", borderRadius: 10 }} >
+                                                                    {/* {console.log("working", cartBtnLoader)} */}
                                                                     <LoaderKit
-                                                                        style={{ width: 50, height: 50 }}
+                                                                        style={{ width: RFValue(20), height: RFValue(20) }}
                                                                         name={'BallPulse'} // Optional: see list of animations below
                                                                         size={50} // Required on iOS
-                                                                        color={COLORS.primary} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',...
+                                                                        color={COLORS.white} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',...
                                                                     />
-                                                                </>}
-                                                        </TouchableOpacity> :
+                                                                </View>}
+                                                        </>
+                                                        :
                                                         <TouchableOpacity style={{ backgroundColor: COLORS.primary, width: "80%", flexDirection: "row", padding: "4%", alignItems: "center", borderRadius: 10 }} onPress={() => navigation.navigate("Cart")} >
                                                             <MCIcon name="cart" size={RFValue(20)} color={"white"} style={{ marginHorizontal: "5%", flexDirection: "column" }} />
                                                             <Text style={{ color: "white", ...FONTS.robotoregular, marginLeft: "6%" }}>View cart</Text>
                                                         </TouchableOpacity>
                                                     }
                                                 </View>
-                                            </View> :
-                                            <View style={{ backgroundColor: COLORS.white, width: "90%", flexDirection: "row", padding: "4%", alignItems: "center", borderRadius: 10 }} onPress={() => navigation.navigate("Cart")} >
-                                                <MCIcon name="check-decagram-outline" size={RFValue(20)} color={COLORS.primary} style={{ marginHorizontal: "5%", flexDirection: "column" }} />
-                                                <Text style={{ color: COLORS.primary, ...FONTS.robotoregular, marginLeft: "6%" }}>Already Purchased</Text>
-                                            </View>
-                                        }
+                                            </View>: 
+                                             <View style={{ backgroundColor: COLORS.white, width: "90%", flexDirection: "row", padding: "4%", alignItems: "center", borderRadius: 10 }} onPress={() => navigation.navigate("Cart")} >
+                                                            <MCIcon name="check-decagram-outline" size={RFValue(20)} color={COLORS.primary} style={{ marginHorizontal: "5%", flexDirection: "column" }} />
+                                                            <Text style={{ color: COLORS.primary, ...FONTS.robotoregular, marginLeft: "6%" }}>Already Purchased</Text>
+                                                        </View>}
 
-                                    </View>
-                                </View>
+                                        </View>
+                                    </View> 
                             )
                             }
                             onEndReachedThreshold={0.2}

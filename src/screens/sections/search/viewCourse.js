@@ -27,12 +27,12 @@ import { useIsFocused } from "@react-navigation/core";
 import NetInfo from '@react-native-community/netinfo';
 
 const ViewCourse = () => {
-    console.log("iam inside search allCourses");
+    // console.log("iam inside search allCourses");
     const dispatch = useDispatch();
     const navigation = useNavigation();
-    const Width = useWindowDimensions.width;
-    console.log(Width, "ScreenWidth")
-    const bannerImage = listData?.recordsets[0][0].imageFiles[0].fileName;
+    const Width=useWindowDimensions.width;
+    // console.log(Width,"ScreenWidth")
+    const bannerImage= listData?.recordsets[0][0].imageFiles[0].fileName;
     // const Token = useSelector((state) => state.loginHandle.data)
     const Data = useSelector(state => state.viewCourse.data)
     // console.log(Data.data.recordsets[0][0].isPurchased, "Data")
@@ -44,7 +44,7 @@ const ViewCourse = () => {
     const CartData = useSelector(state => state.cartList.data);
     //   console.log(CartData);
     const listData = Data?.data;
-    console.log("List in view ", listData);
+    // console.log("List in view ", listData);
 
     useEffect(() => {
         if (isFocused) {
@@ -53,7 +53,7 @@ const ViewCourse = () => {
                 setToken(newToken);
             }
             
-            NetInfo.refresh().then(state => {
+            NetInfo.addEventListener(state => {
                 setNetwork(state.isConnected)
                 if (state.isConnected) {
                     initialLoading();
@@ -67,7 +67,8 @@ const ViewCourse = () => {
     }, [isFocused, network])
 
     const handleAddCart = async (id) => {
-        // console.log("new token", newToken);
+        // console.log("new token", network);
+        if(network){
         if (token) {
             //let result = await addtoCart(id, Token.data);
             let result = await addtoCart(id, token);
@@ -77,6 +78,10 @@ const ViewCourse = () => {
         else {
             navigation.navigate("Login");
         }
+    }
+    else{
+        navigation.navigate("NetworkError");
+    }
     }
     // console.log("buuuuu",token);
     const handleNavigation = () => {
@@ -100,7 +105,7 @@ const ViewCourse = () => {
 
     const handleChangeCourse = (item) => {
         setLoader(true)
-        console.log("item.id", item.ID)
+        // console.log("item.id", item.ID)
         dispatch(viewCourseHandler(item.ID)).then(unwrapResult)
             .then(() => {
                 setLoader(false);
@@ -122,12 +127,12 @@ const ViewCourse = () => {
         }
     }, [CartData])
 
-    const goToCart = () => {
-        navigation.navigate("Cart");
-    }
-    // const handleWishlist=()=>{
-    //       let wishlistedData = await wishListApi(Data[index].ID, key).then(data => { console.log("wishlisted",data) })
+    // const goToCart=()=>{
+    //     navigation.navigate("Cart");
     // }
+// const handleWishlist=()=>{
+//       let wishlistedData = await wishListApi(Data[index].ID, key).then(data => { console.log("wishlisted",data) })
+// }
 
     return (
         <>
@@ -139,8 +144,8 @@ const ViewCourse = () => {
                         </ImageBackground>
                     </View> :
                     <ScrollView style={styles.mainContainer} contentContainerStyle={{ paddingBottom: "5%" }}>
-                        <View style={{ backgroundColor: "#e9ddf1", paddingBottom: "15%" }}>
-                            <View style={{ width: "100%", flexDirection: "row", backgroundColor: COLORS.primary, borderBottomStartRadius: 35, borderBottomEndRadius: 35, paddingVertical: "3%" }}>
+                        <View style={{ backgroundColor: "#e9ddf1",paddingBottom:"15%" }}>
+                            <View style={{ width: "100%", flexDirection: "row", backgroundColor: COLORS.primary, borderBottomStartRadius: 35, borderBottomEndRadius: 35,paddingVertical:"3%" }}>
                                 <Pressable style={{ flexDirection: "column", alignItems: "flex-start", width: "8%", justifyContent: "center", borderWidth: 0, marginLeft: "5%" }}
                                     onPress={() => navigation.goBack()}
                                 >
@@ -156,7 +161,7 @@ const ViewCourse = () => {
                                         <TouchableOpacity style={{ margin: "0%" }}>
                                             <MCIcon name="share-variant" size={RFValue(18)} color={COLORS.white} />
                                         </TouchableOpacity>
-                                        <TouchableOpacity style={{ margin: "0%" }} onPress={() => navigation.navigate("Cart")}>
+                                        <TouchableOpacity style={{ margin: "0%" }} onPress={() =>navigation.navigate("Cart")}>
                                             <MCIcon name="cart-variant" size={RFValue(20)} color={COLORS.white} />
                                         </TouchableOpacity>
                                     </View>
@@ -236,7 +241,7 @@ const ViewCourse = () => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-                                <Text style={{ color: COLORS.black, fontSize: RFValue(20), ...FONTS.robotomedium, textAlign: "right", top: "5%", marginRight: "8%" }}>
+                                <Text style={{ color: COLORS.black, fontSize: RFValue(20), ...FONTS.robotomedium, textAlign: "right", top: "5%",marginRight:"8%" }}>
                                     $ {listData.recordsets?.[0][0].EnrollmentFee}.00
                                 </Text>
 
@@ -255,9 +260,9 @@ const ViewCourse = () => {
                                         <Text style={{ color: COLORS.black, fontSize: RFValue(12), ...FONTS.robotoregular }}>Add To Wishlist</Text>
                                     </TouchableOpacity>
                                     {(Data.data.recordsets[0][0].isPurchased === false) ? (cartArray.includes(`${listData?.recordsets[0][0].ID}`)) ?
-                                        <TouchableOpacity style={{ flexDirection: "column", width: "48%", alignItems: "center", justifyContent: "center", margin: "1%", borderWidth: 1, padding: "3%" }} onPress={() => handleNavigation()}>
-                                            <Text style={{ color: COLORS.black, fontSize: RFValue(12), ...FONTS.robotoregular }}>Go to Cart</Text>
-                                        </TouchableOpacity> : <TouchableOpacity style={{ flexDirection: "column", width: "48%", alignItems: "center", justifyContent: "center", margin: "1%", borderWidth: 1, padding: "3%" }} onPress={() => handleAddCart(listData?.recordsets[0][0].ID)}>
+                                        <TouchableOpacity style={{ flexDirection: "column", width: "48%", alignItems: "center", justifyContent: "center",backgroundColor:COLORS.gray, margin: "1%", borderWidth: 1,borderColor:COLORS.gray, padding: "3%" }} onPress={() => handleNavigation()}>
+                                            <Text style={{ color: COLORS.white, fontSize: RFValue(12), ...FONTS.robotoregular }}>Go to Cart</Text>
+                                        </TouchableOpacity> :<TouchableOpacity style={{ flexDirection: "column", width: "48%", alignItems: "center", justifyContent: "center", margin: "1%", borderWidth: 1, padding: "3%" }} onPress={() => handleAddCart(listData?.recordsets[0][0].ID)}>
                                             <Text style={{ color: COLORS.black, fontSize: RFValue(12), ...FONTS.robotoregular }}>Add To Cart</Text>
                                         </TouchableOpacity> :
                                         <TouchableOpacity style={{ backgroundColor: COLORS.black, flexDirection: "column", width: "48%", alignItems: "center", justifyContent: "center", margin: "1%", borderWidth: 1, padding: "3%" }} onPress={() => handlePurchased()}>
@@ -332,7 +337,7 @@ const ViewCourse = () => {
                             <View style={styles.componentshadow}>
                                 <View style={{ width: "90%", justifyContent: "center", marginHorizontal: "5%", marginVertical: "2%" }}>
                                     <Text style={{ fontSize: RFValue(15), color: COLORS.black, ...FONTS.robotomedium }}>
-                                        <MCIcon name="book" size={RFValue(18)} color={"red"} /> Related Course's
+                                    <MCIcon name="book" size={RFValue(18)} color={"red"} /> Related Course's
                                     </Text>
                                 </View>
                                 <View style={{ width: "95%", left: "3%", paddingBottom: "5%", }}>
@@ -352,7 +357,7 @@ const ViewCourse = () => {
                                                             width: "96%",
                                                             height: RFValue(100),
                                                             margin: "2%",
-                                                            borderTopLeftRadius: 20, borderBottomRightRadius: 20, padding: "5%"
+                                                            borderTopLeftRadius: 20,borderBottomRightRadius:20, padding: "5%"
                                                         }}
                                                     /> : <Image
                                                         source={{ uri: "https://cdn.edusity.com/" + "courses/2528/de3d968f-0f08-4383-8fe1-3278e996ae15.png" }}
@@ -416,7 +421,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 2.25,
         shadowRadius: 3.84,
-        borderBottomWidth: 1,
+        borderBottomWidth:1,
         borderColor: COLORS.lightGray,
         backgroundColor: COLORS.white,
         // borderRadius: 10,

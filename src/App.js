@@ -1,4 +1,4 @@
-import React from "react";
+import React ,{useEffect, useState}from "react";
 import {
     Image,
     TouchableOpacity
@@ -25,8 +25,11 @@ import Cart from "./screens/cart";
 import NetworkError from "./screens/Exceptions/noNetworkPage"
 import RazorPay from "./screens/razorPay";
 import CheckoutComplete from "./screens/checkoutComplete";
+import ServerErrorPage from "./screens/Exceptions/serverDown";
 // import GeolocationFetcher from "./screens/geoLocation";
-
+import { useIsFocused } from "@react-navigation/core";
+import NetInfo from '@react-native-community/netinfo';
+import { useNavigation } from '@react-navigation/native';
 
 
 const theme = {
@@ -40,6 +43,20 @@ const theme = {
 const Stack = createStackNavigator();
 
 const App = () => {
+    // const isFocused = useIsFocused();
+    // const [network, setNetwork] = useState('')
+    // const navigation = useNavigation();
+
+    // useEffect(()=>{
+    //     if(isFocused){
+    //         NetInfo.addEventListener(state=>{
+    //             if(!state.isConnected){
+    //                 navigation.navigate("NetworkError");
+    //             }
+    //         })
+    //     }
+    // },[isFocused])
+
     return (
         <NavigationContainer theme={theme}>
             <Stack.Navigator
@@ -69,6 +86,11 @@ const App = () => {
                     name="NetworkError"
                     options={{ animationEnabled: false, header: () => null }}
                     component={NetworkError}
+                />
+                <Stack.Screen
+                    name="ServerError"
+                    options={{ animationEnabled: false, header: () => null }}
+                    component={ServerErrorPage}
                 />
                 <Stack.Screen
                     name="Login"
