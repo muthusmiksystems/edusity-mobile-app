@@ -19,8 +19,8 @@ import { cartListUrl } from '../services/constant';
 const CheckoutComplete = () => {
     const navigation = useNavigation();
     const Token = useSelector((state) => state.loginHandle.data)
-    useEffect(() => {
-        const cartDelete = async () => {
+    useEffect(()=>{
+        const cartDelete=async()=>{
             // console.log("deleted")
             return await axios.delete(cartListUrl, {
                 headers: {

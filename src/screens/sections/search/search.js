@@ -46,7 +46,7 @@ const Search = ({ navigation }) => {
                 setNetwork(state.isConnected)
                 if (state.isConnected) {
                     initialLoading();
-                    setIsSearchLoader(false);
+                    
                 }
                 else {
                 setIsSearchLoader(false);
